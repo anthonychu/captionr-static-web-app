@@ -3,9 +3,6 @@ import {
 } from 'microsoft-cognitiveservices-speech-sdk'
 
 class Translator {
-  _recognizer
-  _callback
-
   constructor(callback) {
     this._callback = callback
   }
@@ -59,13 +56,15 @@ class Translator {
   }
   
   stop() {
-    this._recognizer.stopContinuousRecognitionAsync(
-      stopRecognizer.bind(this),
-      function (err) {
-        stopRecognizer().bind(this)
-        console.error(err)
-      }.bind(this)
-    )
+    if (this._recognizer) {
+      this._recognizer.stopContinuousRecognitionAsync(
+        stopRecognizer.bind(this),
+        function (err) {
+          stopRecognizer().bind(this)
+          console.error(err)
+        }.bind(this)
+      )
+    }
 
     function stopRecognizer() {
       this._recognizer.close()

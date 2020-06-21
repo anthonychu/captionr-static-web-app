@@ -56,6 +56,7 @@ export default {
   async mounted() {
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(`${constants.apiBaseUrl}/api/${this.clientId}`)
+      .withAutomaticReconnect()
       .build()
 
     this.connection.on('newCaption', onNewCaption.bind(this))
