@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import CaptionHost from './views/CaptionHost.vue'
+import CaptionJoin from './views/CaptionJoin.vue'
 
 Vue.use(Router)
 
@@ -14,14 +16,14 @@ export default new Router({
       component: Home
     },
     {
-      path: '/host',
+      path: '/host/:meetingId/:hostKey',
       name: 'host',
-      component: () => import('./views/CaptionHost.vue')
+      component: CaptionHost
     },
     {
-      path: '/join',
+      path: '/join/:meetingId',
       name: 'join',
-      component: () => import('./views/CaptionJoin.vue'),
+      component: CaptionJoin,
       props: true
     }
   ]

@@ -1,5 +1,4 @@
 {
-  "disabled": false,
   "bindings": [
     {
       "authLevel": "anonymous",
@@ -8,7 +7,8 @@
       "name": "req",
       "methods": [
         "post"
-      ]
+      ],
+      "route": "tokens/host"
     },
     {
       "type": "http",
@@ -16,10 +16,13 @@
       "name": "res"
     },
     {
-      "type": "signalR",
-      "direction": "out",
-      "name": "signalRGroupActions",
-      "hubName": "mtg{meetingId}"
+      "type": "table",
+      "direction": "in",
+      "name": "meeting",
+      "tableName": "meetings",
+      "partitionKey": "1",
+      "rowKey": "{meetingId}",
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }

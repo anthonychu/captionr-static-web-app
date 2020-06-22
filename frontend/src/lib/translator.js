@@ -25,7 +25,7 @@ class Translator {
     this._recognizer.recognizing = this._recognizer.recognized = recognizerCallback.bind(this)
     this._recognizer.startContinuousRecognitionAsync()
 
-    function recognizerCallback(s, e) {
+    async function recognizerCallback(s, e) {
       const result = e.result
       const reason = ResultReason[result.reason]
       if (reason !== 'TranslatingSpeech' && reason !== 'TranslatedSpeech') {
@@ -44,7 +44,7 @@ class Translator {
         captions.languages[langCode] = caption
       }
 
-      this._callback({
+      await this._callback({
         original: result.text,
         translations: captions
       })

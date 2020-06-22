@@ -1,5 +1,9 @@
 <template>
   <div class="caption-host">
+    <div>
+      <div>Meeting join link: <code>{{ `${origin}/join/${meetingId}` }}</code></div>
+      <div>Meeting password: <code>{{ meetingPassword }}</code></div>
+    </div>
     <div v-if="!started">
       <h1>Host a session</h1>
       <div><input type="password" v-model="key" placeholder="Cognitive Services Speech API Key" /></div>
@@ -37,7 +41,12 @@ export default {
       region: `${constants.region}`,
       currentSentence: '',
       started: false,
-      fromLanguage: 'en-US'
+      fromLanguage: 'en-US',
+      meetingId: this.$route.params.meetingId,
+      hostKey: this.$route.params.hostKey,
+      authToken: null,
+      meetingPassword: null,
+      origin: null
     }
   },
   watch: {
@@ -45,13 +54,25 @@ export default {
       window.localStorage.setItem(speechApiKeyLocalStorageKey, newKey)
     }
   },
-  created() {
+  async created() {
     this.translator = new Translator(function(captions) {
       this.currentSentence = captions.original
-      axios.post(`${constants.apiBaseUrl}/api/captions`,
-        captions.translations,
-        { withCredentials: true })
+      const translations = Object.assign({
+        token: this.authToken
+      }, captions.translations)
+      axios.post(`${constants.apiBaseUrl}/api/captions?meetingId=${this.meetingId}`, translations)
     }.bind(this))
+
+    const auth = await axios.post(`${constants.apiBaseUrl}/api/tokens/host`, {
+      meetingId: this.meetingId,
+      hostKey: this.hostKey
+    }).then(r => r.data)
+
+    this.authToken = auth.token
+    this.meetingPassword = auth.meeting.meetingPassword
+  },
+  mounted() {
+    this.origin = window.location.origin
   },
   methods: {
     start() {
@@ -61,6 +82,7 @@ export default {
         fromLanguage: this.fromLanguage,
         toLanguages: this.toLanguages
       })
+      console.log(this.meetingId, this.hostKey)
       this.started = true
     },
     stop() {

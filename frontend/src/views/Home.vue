@@ -2,12 +2,13 @@
   <div class="home">
     <div class="main-option">
       <h2>Host a captioning session</h2>
-      <button @click="login">Host</button>
+      <button @click="newMeeting">Create a new meeting</button>
     </div>
     <div class="main-option">
       <h2>Join a captioning session</h2>
       <div>
-        <button @click="join">Join</button>
+        <div><input type="text" v-model="meetingId" placeholder="Meeting id" /></div>
+        <div><button @click="join">Join a meeting</button></div>
       </div>
     </div>
   </div>
@@ -15,19 +16,24 @@
 
 <script>
 import constants from '../lib/constants'
+import axios from 'axios'
 
 export default {
   name: 'home',
+  data() {
+    return {
+      meetingId: null
+    }
+  },
   methods: {
-    login() {
-      if (constants.authProvider) {
-        window.location.href = `${constants.apiBaseUrl}/.auth/login/${constants.authProvider}?post_login_redirect_url=${encodeURIComponent(window.location.origin + '/host')}`
-      } else {
-        this.$router.push('host')
-      }
+    async newMeeting() {
+      // TODO: need retry logic (could error out if generated a meeting that already exists)
+      const meeting = await axios.post(`${constants.apiBaseUrl}/api/meetings`)
+        .then(r => r.data);
+      this.$router.push(`host/${meeting.meetingId}/${meeting.hostKey}`)
     },
     join() {
-      this.$router.push('join')
+      this.$router.push(`join/${this.meetingId}`)
     }
   }
 }

@@ -9,7 +9,7 @@
       "methods": [
         "post"
       ],
-      "route": "{userId}/negotiate"
+      "route": "{userId}/{meetingId}/{meetingPassword}/negotiate"
     },
     {
       "type": "http",
@@ -21,7 +21,16 @@
       "direction": "in",
       "userId": "{userId}",
       "name": "connectionInfo",
-      "hubName": "captions"
+      "hubName": "mtg{meetingId}"
+    },
+    {
+      "type": "table",
+      "direction": "in",
+      "name": "meeting",
+      "tableName": "meetings",
+      "partitionKey": "1",
+      "rowKey": "{meetingId}",
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }
