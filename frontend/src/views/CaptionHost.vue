@@ -8,6 +8,7 @@
       <h1>Host a session</h1>
       <div><input type="password" v-model="key" placeholder="Cognitive Services Speech API Key" /></div>
       <div>
+        <input type="text" v-model="region" placeholder="Speech API region" />
         <select v-model="fromLanguage">
           <option v-for="lang in fromLanguages" :value="lang" :key="lang">
             {{ lang }}
@@ -32,13 +33,14 @@ import Translator from '../lib/translator'
 import languageListMixin from '../lib/language-list-mixin'
 
 const speechApiKeyLocalStorageKey = 'speechApiKey'
+const speechApiRegionStorageKey = 'speechApiRegion'
 
 export default {
   mixins: [ languageListMixin ],
   data() {
     return {
       key: window.localStorage.getItem(speechApiKeyLocalStorageKey) || '',
-      region: `${constants.region}`,
+      region: window.localStorage.getItem(speechApiRegionStorageKey) || `${constants.region}`,
       currentSentence: '',
       started: false,
       fromLanguage: 'en-US',
@@ -52,6 +54,9 @@ export default {
   watch: {
     key(newKey) {
       window.localStorage.setItem(speechApiKeyLocalStorageKey, newKey)
+    },
+    region(newRegion) {
+      window.localStorage.setItem(speechApiRegionStorageKey, newRegion)
     }
   },
   async created() {

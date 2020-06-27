@@ -10,7 +10,7 @@ class Translator {
   start(options) {
     const alreadyStarted = !!this._recognizer
     if (alreadyStarted) {
-      return
+      this._recognizer.stopContinuousRecognitionAsync()
     }
 
     const audioConfig = AudioConfig.fromDefaultMicrophoneInput()
