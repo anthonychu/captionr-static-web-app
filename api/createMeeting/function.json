@@ -20,7 +20,7 @@
       "direction": "out",
       "name": "newMeeting",
       "tableName": "meetings",
-      "connection": "StorageConnectionString"
+      "connection": "Storage"
     }
   ]
 }

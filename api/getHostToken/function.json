@@ -22,7 +22,7 @@
       "tableName": "meetings",
       "partitionKey": "1",
       "rowKey": "{meetingId}",
-      "connection": "StorageConnectionString"
+      "connection": "Storage"
     }
   ]
 }
