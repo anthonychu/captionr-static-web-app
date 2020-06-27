@@ -1,9 +1,13 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = async function (context, req) {
     const captions = req.body;
 
-    if (process.env.AUTHORIZED_USER && process.env.AUTHORIZED_USER.toLowerCase() !== req.headers['x-ms-client-principal-name'].toLowerCase()) {
+    try {
+        jwt.verify(captions.token, process.env.JwtSigningKey);
+    } catch {
         context.res = {
-            status: 403
+            status: 401
         };
         return;
     }

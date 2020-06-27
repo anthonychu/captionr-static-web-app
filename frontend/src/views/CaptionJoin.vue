@@ -1,14 +1,20 @@
 <template>
   <div class="caption-join">
-    <div id="language-select">
-      <select v-model="toLanguageCode">
-        <option v-for="lang in toLanguageCodes" :value="lang" :key="lang">
-          {{ lang }}
-        </option>
-      </select>
+    <div v-if="!joined">
+      <div><input type="password" v-model="meetingPassword" placeholder="Meeting Password" /></div>
+      <button @click="join">Join</button>
     </div>
-    <div id="captions-text" class="caption">
-      <div v-for="caption in captions" :key="caption.offset">{{ caption.text }}</div>
+    <div v-else>
+      <div id="language-select">
+        <select v-model="toLanguageCode">
+          <option v-for="lang in toLanguageCodes" :value="lang" :key="lang">
+            {{ lang }}
+          </option>
+        </select>
+      </div>
+      <div id="captions-text" class="caption">
+        <div v-for="caption in captions" :key="caption.offset">{{ caption.text }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -29,7 +35,11 @@ export default {
     return {
       code: '',
       captions: [],
-      toLanguageCode: 'en'
+      captionsMap: {},
+      toLanguageCode: 'en',
+      meetingId: null,
+      meetingPassword: null,
+      joined: false
     }
   },
   computed: {
@@ -38,8 +48,42 @@ export default {
     }
   },
   methods: {
+    async join() {
+      this.connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${constants.apiBaseUrl}/api/${this.clientId}/${this.meetingId}/${this.meetingPassword}`)
+        .withAutomaticReconnect()
+        .build()
+
+      this.connection.on('newCaption', onNewCaption.bind(this))
+
+      try {
+        await this.connection.start()
+      } catch (e) {
+        alert('Connection failed. Verify the meeting id and password and try again.')
+      }
+
+      console.log('connection started')
+      this.joined = true
+      await this.updateLanguageSubscription(this.toLanguageCode)
+
+      function onNewCaption(caption) {
+        let localCaption = this.captionsMap[caption.offset]
+        if (!localCaption) {
+          localCaption = this.captionsMap[caption.offset] = {
+            offset: caption.offset,
+            text: ''
+          }
+          this.captions.push(localCaption)
+        }
+        localCaption.text = caption.text
+
+        Vue.nextTick(function() {
+          window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight)
+        })
+      }
+    },
     async updateLanguageSubscription(languageCode) {        
-      await axios.post(`${constants.apiBaseUrl}/api/selectlanguage`, {
+      await axios.post(`${constants.apiBaseUrl}/api/selectlanguage?meetingId=${this.meetingId}`, {
         languageCode,
         userId: this.clientId
       })
@@ -53,33 +97,8 @@ export default {
       immediate: true
     }
   },
-  async mounted() {
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${constants.apiBaseUrl}/api/${this.clientId}`)
-      .withAutomaticReconnect()
-      .build()
-
-    this.connection.on('newCaption', onNewCaption.bind(this))
-
-    await this.connection.start()
-    console.log('connection started')
-
-    const captionsMap = {}
-    function onNewCaption(caption) {
-      let localCaption = captionsMap[caption.offset]
-      if (!localCaption) {
-        localCaption = captionsMap[caption.offset] = {
-          offset: caption.offset,
-          text: ''
-        }
-        this.captions.push(localCaption)
-      }
-      localCaption.text = caption.text
-
-      Vue.nextTick(function() {
-        window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight)
-      })
-    }
+  mounted() {
+    this.meetingId = this.$route.params.meetingId
   },
   async beforeDestroy() {
     if (this.connection) {

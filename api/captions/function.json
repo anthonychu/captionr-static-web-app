@@ -18,7 +18,7 @@
     {
       "type": "signalR",
       "name": "$return",
-      "hubName": "captions",
+      "hubName": "mtg{meetingId}",
       "direction": "out"
     }
   ]
