@@ -10,7 +10,7 @@
 ### Configure Azure Functions (api folder)
 
 * Create a local.settings.json by copying local.settings.sample.json. In local.settings.json, set these values:
-    - `AzureWebJobsStorage` - connection string from your storage account
+    - `Storage` - connection string from your storage account
     - `AzureSignalRConnectionString` - connection string from your SignalR Service instance
     - `JwtSigningKey` - any string that will be used to sign the token used to authenticate the host when sending captions to Azure Functions
 
